@@ -3,6 +3,7 @@
 const usuariosFijos = [
   { id: 'admin', nombre: 'Administrador', apellidos: '', matricula: 'admin', contrasena: 'admin123', rol: 'admin' },
   { id: 'pract', nombre: 'Practicante', apellidos: '', matricula: 'pract', contrasena: 'pract123', rol: 'practicante' }
+  
 ];
 
 // Al cargar, asegurar que existan los usuarios fijos en localStorage

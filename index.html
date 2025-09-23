@@ -11,10 +11,9 @@
     }
     
     body {
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Arial', sans-serif;
       min-height: 100vh;
-      background: url('img/medical-background.jpg?v=1') center center / cover no-repeat;
-      background-color: #7dd3fc;
+      background: url('img/medical-background.png?v=1') center center / cover no-repeat;
       position: relative;
       overflow: hidden;
     }
@@ -50,8 +49,23 @@
     .logo {
       width: 120px;
       height: 120px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      object-fit: contain;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    
+    /* Estilo específico para el logo UAT para evitar que se vea aplanado */
+    .logo:first-child {
+      width: 130px;
+      height: 120px;
+    }
+    
+    /* Estilo específico para el logo Medical Developer (remover fondo blanco) */
+    .logo:last-child {
+      mix-blend-mode: multiply;
+      filter: contrast(1.1) brightness(1.1);
     }
     
     .title {
@@ -81,7 +95,10 @@
       display: block;
       font-size: 1.3rem;
       font-weight: 500;
-      color: #374151;
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 12px;
       text-align: center;
     }
@@ -106,8 +123,8 @@
     .btn-login {
       width: 100%;
       padding: 18px;
-      background: linear-gradient(135deg, #06b6d4, #0891b2);
-      color: white;
+      background: linear-gradient(135deg, #7dd3fc, #fef3c7);
+      color: #1f2937;
       border: none;
       border-radius: 50px;
       font-size: 1.2rem;
@@ -120,9 +137,9 @@
     }
     
     .btn-login:hover {
-      background: linear-gradient(135deg, #0891b2, #0e7490);
+      background: linear-gradient(135deg, #38bdf8, #fbbf24);
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+      box-shadow: 0 10px 25px rgba(125, 211, 252, 0.4);
     }
     
     .btn-login:active {
@@ -137,11 +154,17 @@
       }
       
       .title {
-        font-size: 2.5rem;
+        font-size: 3.0rem;
       }
       
       .logo {
         width: 80px;
+        height: 80px;
+        object-fit: contain;
+      }
+      
+      .logo:first-child {
+        width: 85px;
         height: 80px;
       }
       
