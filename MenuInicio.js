@@ -6,13 +6,7 @@ const params = new URLSearchParams(window.location.search);
 const usuario = params.has('practicante') ? 'practicante' : 'admin';
 const nombre = params.get('nombre') || (usuario === 'admin' ? 'Administrador' : 'Practicante');
 
-// Botones permitidos para practicante
-const botonesPermitidosPracticante = [
-  'Historial médico',
-  'Ingresar Nuevo Paciente',
-  'Mesas de salud',
-  'Citas'
-];
+// Los practicantes son redirigidos automáticamente a pacientes
 
 document.addEventListener('DOMContentLoaded', () => {
   // Mostrar nombre del usuario junto al icono
@@ -54,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('usuarios', JSON.stringify(usuarios));
       modalUsuario.style.display = 'none';
       formUsuario.reset();
-      alert('Usuario registrado correctamente');
+      mostrarConfirmacion('¡Usuario Registrado!', 'El usuario ha sido registrado correctamente en el sistema.');
     };
   }
   // Mensaje de bienvenida
@@ -63,22 +57,41 @@ document.addEventListener('DOMContentLoaded', () => {
     usuarioActual = JSON.parse(localStorage.getItem('usuarioActual'));
   } catch (e) {}
   let nombreBienvenida = usuarioActual && usuarioActual.nombre ? usuarioActual.nombre : (usuario === 'admin' ? 'Administrador' : 'Practicante');
-  document.querySelector('h2').innerText = usuario === 'admin'
-    ? `Bienvenido ${nombreBienvenida} (Administrador)`
-    : `Bienvenido ${nombreBienvenida}`;
+  document.querySelector('h2').innerText = `Bienvenido ${nombreBienvenida}`;
 
-  // Mostrar/ocultar botones según el rol
+  // Si es practicante, redirigir directamente a pacientes
+  if (usuario === 'practicante') {
+    const params = new URLSearchParams(window.location.search);
+    const nuevoParams = new URLSearchParams();
+    
+    // Preservar parámetros de usuario
+    if (params.has('practicante')) nuevoParams.set('practicante', 'true');
+    if (params.get('nombre')) nuevoParams.set('nombre', params.get('nombre'));
+    
+    // Redirigir automáticamente a pacientes
+    window.location.href = `categoria-pacientes.html?${nuevoParams.toString()}`;
+    return; // Evitar que se ejecute el resto del código
+  }
+
+  // Mostrar/ocultar botones según el rol (solo para admin)
   document.querySelectorAll('.menu button').forEach(btn => {
-    const texto = btn.innerText.trim();
-    if (usuario === 'practicante') {
-      if (!botonesPermitidosPracticante.some(t => texto.includes(t))) {
-        btn.style.display = 'none';
-      } else {
-        btn.style.display = 'flex';
-      }
-    } else {
-      btn.style.display = 'flex';
-    }
+    btn.style.display = 'flex';
+  });
+
+  // Manejar clics en categorías
+  document.querySelectorAll('.menu button[data-category]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const categoria = this.getAttribute('data-category');
+      const params = new URLSearchParams(window.location.search);
+      const nuevoParams = new URLSearchParams();
+      
+      // Preservar parámetros de usuario
+      if (params.has('practicante')) nuevoParams.set('practicante', 'true');
+      if (params.get('nombre')) nuevoParams.set('nombre', params.get('nombre'));
+      
+      // Redirigir a la página de la categoría
+      window.location.href = `categoria-${categoria}.html?${nuevoParams.toString()}`;
+    });
   });
 
   // Lógica del icono de usuario y logout
@@ -99,4 +112,21 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'index.html'; // Redirige al login
     };
   }
+
+  // Función para mostrar modal de confirmación personalizado
+  window.mostrarConfirmacion = function(titulo, mensaje) {
+    const modal = document.getElementById('modalConfirmacion');
+    const tituloEl = document.getElementById('tituloConfirmacion');
+    const mensajeEl = document.getElementById('mensajeConfirmacion');
+    const btnAceptar = document.getElementById('btnAceptarConfirmacion');
+    
+    tituloEl.textContent = titulo || '¡Éxito!';
+    mensajeEl.textContent = mensaje || 'Operación completada correctamente';
+    
+    modal.style.display = 'flex';
+    
+    btnAceptar.onclick = function() {
+      modal.style.display = 'none';
+    };
+  };
 });
