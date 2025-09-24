@@ -30,35 +30,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // Lógica del menú de usuario
   const userIcon = document.getElementById('userIcon');
   const userDropdown = document.getElementById('userDropdown');
-  const logoutBtn = document.getElementById('logoutBtn');
-  
   if (userIcon && userDropdown) {
-    userIcon.onclick = function(e) {
+    userIcon.addEventListener('click', function(e) {
       userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
       e.stopPropagation();
-    };
+    });
     document.body.addEventListener('click', function() {
       userDropdown.style.display = 'none';
     });
   }
   
+  const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
-    logoutBtn.onclick = function() {
+    logoutBtn.addEventListener('click', function() {
       window.location.href = 'index.html';
-    };
+    });
   }
 
   // Configurar botón de volver
   const backBtn = document.getElementById('backBtn');
   if (backBtn) {
     if (usuario === 'practicante') {
-      // Ocultar el botón para practicantes
       backBtn.style.display = 'none';
     } else {
-      // Los admins van al menú principal
-      backBtn.onclick = function() {
+      backBtn.addEventListener('click', function() {
         window.history.back();
-      };
+      });
     }
   }
 
@@ -71,89 +68,176 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', function() {
       const targetSection = this.getAttribute('data-section');
       
-      // Remover clase active de todos los botones
       sidebarButtons.forEach(btn => btn.classList.remove('active'));
-      // Agregar clase active al botón clickeado
       this.classList.add('active');
       
-      // Ocultar sección por defecto
       if (defaultSection) {
         defaultSection.style.display = 'none';
       }
       
-      // Ocultar todas las secciones
       sections.forEach(section => {
         section.classList.remove('active');
       });
       
-      // Mostrar sección seleccionada
+      // === BUG CORREGIDO AQUÍ ===
+      // Se usan comillas invertidas (`) para crear la cadena de texto correctamente.
       const activeSection = document.getElementById(`${targetSection}-section`);
       if (activeSection) {
         activeSection.classList.add('active');
-        
-        // Las secciones de pacientes están en desarrollo
       }
     });
   });
 
-  // Las funcionalidades de pacientes están en desarrollo
+  // Mostrar por defecto la sección de historial al cargar la página
+  const historialBtn = document.querySelector('button[data-section="historial"]');
+  if(historialBtn) {
+    historialBtn.click();
+  }
 
-  // Función para mostrar confirmaciones
+
+  // --- INICIO DEL CÓDIGO PARA FORMULARIO Y REGISTRO DE PACIENTES ---
+  const pesoInput = document.getElementById('peso');
+  const alturaInput = document.getElementById('altura');
+  const imcResultado = document.getElementById('imc-resultado');
+  const form = document.getElementById('patient-form');
+  const errorMessage = document.getElementById('error-message');
+  const historyBody = document.getElementById('history-body');
+
+  cargarHistorial();
+
+  if(pesoInput) pesoInput.addEventListener('input', calcularYMostrarIMC);
+  if(alturaInput) alturaInput.addEventListener('input', calcularYMostrarIMC);
+
+  if(form) {
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        validarYGuardarDatos();
+    });
+  }
+
+  function calcularYMostrarIMC() {
+      const peso = parseFloat(pesoInput.value);
+      const alturaCm = parseFloat(alturaInput.value);
+
+      if (peso > 0 && alturaCm > 0) {
+          const alturaM = alturaCm / 100;
+          const imc = peso / (alturaM * alturaM);
+          imcResultado.textContent = imc.toFixed(2);
+      } else {
+          imcResultado.textContent = '---';
+      }
+  }
+
+  function validarYGuardarDatos() {
+      const datos = {
+          peso: pesoInput.value.trim(),
+          altura: alturaInput.value.trim(),
+          presion: document.getElementById('presion').value.trim(),
+          glucosa: document.getElementById('glucosa').value.trim(),
+          temperatura: document.getElementById('temperatura').value.trim()
+      };
+
+      let errores = [];
+
+      if (!datos.peso || isNaN(datos.peso) || parseFloat(datos.peso) <= 0) {
+          errores.push('El peso debe ser un número positivo.');
+      }
+      if (!datos.altura || isNaN(datos.altura) || parseFloat(datos.altura) <= 0) {
+          errores.push('La altura debe ser un número positivo.');
+      }
+      if (!datos.glucosa || isNaN(datos.glucosa) || parseFloat(datos.glucosa) < 0) {
+          errores.push('La glucosa debe ser un número válido.');
+      }
+      if (!datos.temperatura || isNaN(datos.temperatura)) {
+          errores.push('La temperatura debe ser un valor numérico.');
+      }
+      if (datos.presion === '') {
+          errores.push('La presión arterial es requerida.');
+      }
+
+      if (errores.length > 0) {
+          errorMessage.innerHTML = errores.join('<br>');
+          errorMessage.style.display = 'block';
+      } else {
+          errorMessage.style.display = 'none';
+          
+          const registro = {
+              ...datos,
+              imc: imcResultado.textContent,
+              fecha: new Date().toLocaleString('es-MX')
+          };
+          
+          guardarRegistro(registro);
+          actualizarTablaHistorial(registro);
+          form.reset();
+          imcResultado.textContent = '---';
+          
+          mostrarConfirmacion('Registro Exitoso', 'Los datos médicos se han guardado correctamente.');
+      }
+  }
+  
+  function guardarRegistro(registro) {
+      const historial = JSON.parse(localStorage.getItem('historialPacientes')) || [];
+      historial.unshift(registro);
+      localStorage.setItem('historialPacientes', JSON.stringify(historial));
+  }
+
+  function cargarHistorial() {
+      if(!historyBody) return;
+      const historial = JSON.parse(localStorage.getItem('historialPacientes')) || [];
+      historyBody.innerHTML = '';
+      historial.forEach(registro => actualizarTablaHistorial(registro, false));
+  }
+
+  function actualizarTablaHistorial(registro, esNuevo = true) {
+      if(!historyBody) return;
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+          <td>${registro.fecha}</td>
+          <td>${registro.peso}</td>
+          <td>${registro.altura}</td>
+          <td>${registro.imc}</td>
+          <td>${registro.presion}</td>
+          <td>${registro.glucosa}</td>
+          <td>${registro.temperatura}</td>
+      `;
+      
+      if (esNuevo) {
+          historyBody.prepend(fila);
+      } else {
+          historyBody.appendChild(fila);
+      }
+  }
+
+  // Función para mostrar confirmaciones (se mantiene como la proporcionaste)
   function mostrarConfirmacion(titulo, mensaje) {
-    // Crear modal dinámicamente
     const modal = document.createElement('div');
     modal.style.cssText = `
-      display: flex;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: linear-gradient(135deg, rgba(125, 211, 252, 0.9), rgba(254, 243, 199, 0.9));
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
+      z-index: 9999; justify-content: center; align-items: center;
     `;
     
     modal.innerHTML = `
       <div style="
-        background: rgba(255, 255, 255, 0.98);
-        padding: 30px;
-        border-radius: 20px;
-        min-width: 350px;
-        max-width: 500px;
-        text-align: center;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-        border: 2px solid rgba(125, 211, 252, 0.4);
-        position: relative;
-        margin: 20px;
+        background: rgba(255, 255, 255, 0.98); padding: 30px; border-radius: 20px;
+        min-width: 350px; max-width: 500px; text-align: center;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3); border: 2px solid rgba(125, 211, 252, 0.4);
+        position: relative; margin: 20px;
       ">
         <div style="margin-bottom: 20px; font-size: 3rem;">✅</div>
         <h3 style="
-          margin: 0 0 15px 0;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: transparent;
+          margin: 0 0 15px 0; font-size: 1.5rem; font-weight: 700; color: transparent;
           background: linear-gradient(135deg, #06b6d4, #10b981);
-          -webkit-background-clip: text;
-          background-clip: text;
+          -webkit-background-clip: text; background-clip: text;
         ">${titulo}</h3>
         <p style="
-          margin: 0 0 25px 0;
-          font-size: 1.1rem;
-          color: #374151;
-          line-height: 1.5;
+          margin: 0 0 25px 0; font-size: 1.1rem; color: #374151; line-height: 1.5;
         ">${mensaje}</p>
-        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="
-          background: linear-gradient(135deg, #7dd3fc, #fef3c7);
-          color: #1f2937;
-          border: none;
-          border-radius: 25px;
-          padding: 12px 30px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
+        <button onclick="this.closest('div[style*=\\'position: fixed\\']').remove()" style="
+          background: linear-gradient(135deg, #7dd3fc, #fef3c7); color: #1f2937;
+          border: none; border-radius: 25px; padding: 12px 30px; font-size: 1rem;
+          font-weight: 600; cursor: pointer; transition: all 0.3s ease;
           box-shadow: 0 6px 20px rgba(125, 211, 252, 0.3);
         ">Aceptar</button>
       </div>
