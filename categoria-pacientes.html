@@ -240,13 +240,14 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
-        font-size: 0.9rem; /* Letra más pequeña para que quepan más datos */
+        font-size: 0.9rem;
     }
 
     .history-table th, .history-table td {
         border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
+        vertical-align: middle;
     }
 
     .history-table thead {
@@ -319,8 +320,8 @@
     <h1 id="headerTitle">Medical Developer - Pacientes</h1>
   </header>
 
-  <div class="main-layout">
-    <div class="sidebar">
+  <main class="main-layout">
+    <aside class="sidebar">
       <h2>Pacientes</h2>
       <ul class="sidebar-menu">
         <li>
@@ -339,7 +340,7 @@
           </button>
         </li>
       </ul>
-    </div>
+    </aside>
 
     <div class="content">
       <div class="content-area">
@@ -350,27 +351,27 @@
           </div>
         </div>
 
-        <div id="historial-section" class="form-section">
-          <h2 class="content-title">Historial Médico</h2>
+        <section id="historial-section" class="form-section">
+          <h2 class="content-title">Lista de Pacientes</h2>
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Fecha</th>
+                        <th>Última Visita</th>
                         <th>Paciente</th>
                         <th>Matrícula</th>
                         <th>Carrera</th>
                         <th>Edad</th>
-                        <th>Peso (kg)</th>
+                        <th>Último Peso (kg)</th>
                         <th>Altura (cm)</th>
-                        <th>IMC</th>
+                        <th>Último IMC</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="history-body">
-                    </tbody>
+                <tbody id="history-body"></tbody>
             </table>
-        </div>
+        </section>
 
-        <div id="nuevo-paciente-section" class="form-section">
+        <section id="nuevo-paciente-section" class="form-section">
           <h2 class="content-title">Ingresar Nuevo Paciente</h2>
             <form id="patient-form" novalidate>
                 <h3 class="form-subtitle">Datos Personales</h3>
@@ -427,14 +428,39 @@
                     <button type="submit" class="btn btn-primary">Guardar Registro</button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <div id="citas-section" class="form-section">
+        <section id="citas-section" class="form-section">
           <h2 class="content-title">Gestión de Citas</h2>
           <div class="welcome-message">
             <p>📅 Funcionalidad en desarrollo...</p>
           </div>
-        </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="historialModal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 900px; border-radius: 15px;">
+      <h2 id="modalPatientName" style="text-align: center; color: #0891b2;">Historial de Paciente</h2>
+      <table class="history-table" style="width: 100%; margin-top: 15px;">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Peso (kg)</th>
+            <th>Altura (cm)</th>
+            <th>IMC</th>
+            <th>Presión Art.</th>
+            <th>Glucosa</th>
+            <th>Temp.</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="modalHistoryBody">
+          </tbody>
+      </table>
+      <div style="text-align: right; margin-top: 20px;">
+        <button id="modalCloseBtn" class="btn">Cerrar</button>
       </div>
     </div>
   </div>
