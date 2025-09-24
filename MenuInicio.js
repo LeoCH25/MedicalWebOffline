@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('usuarios', JSON.stringify(usuarios));
       modalUsuario.style.display = 'none';
       formUsuario.reset();
-      alert('Usuario registrado correctamente');
+      mostrarConfirmacion('¡Usuario Registrado!', 'El usuario ha sido registrado correctamente en el sistema.');
     };
   }
   // Mensaje de bienvenida
@@ -63,9 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     usuarioActual = JSON.parse(localStorage.getItem('usuarioActual'));
   } catch (e) {}
   let nombreBienvenida = usuarioActual && usuarioActual.nombre ? usuarioActual.nombre : (usuario === 'admin' ? 'Administrador' : 'Practicante');
-  document.querySelector('h2').innerText = usuario === 'admin'
-    ? `Bienvenido ${nombreBienvenida} (Administrador)`
-    : `Bienvenido ${nombreBienvenida}`;
+  document.querySelector('h2').innerText = `Bienvenido ${nombreBienvenida}`;
 
   // Mostrar/ocultar botones según el rol
   document.querySelectorAll('.menu button').forEach(btn => {
@@ -99,4 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = 'index.html'; // Redirige al login
     };
   }
+
+  // Función para mostrar modal de confirmación personalizado
+  window.mostrarConfirmacion = function(titulo, mensaje) {
+    const modal = document.getElementById('modalConfirmacion');
+    const tituloEl = document.getElementById('tituloConfirmacion');
+    const mensajeEl = document.getElementById('mensajeConfirmacion');
+    const btnAceptar = document.getElementById('btnAceptarConfirmacion');
+    
+    tituloEl.textContent = titulo || '¡Éxito!';
+    mensajeEl.textContent = mensaje || 'Operación completada correctamente';
+    
+    modal.style.display = 'flex';
+    
+    btnAceptar.onclick = function() {
+      modal.style.display = 'none';
+    };
+  };
 });

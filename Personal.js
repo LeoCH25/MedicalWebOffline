@@ -16,20 +16,23 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (e) {}
       // Renderizar lista
       if (usuarios.length === 0) {
-        personalLista.innerHTML = '<p>No hay usuarios registrados.</p>';
+        personalLista.innerHTML = '<div style="text-align: center; color: #6b7280; font-size: 1.1rem; padding: 20px;">No hay usuarios registrados en el sistema.</div>';
       } else {
-        personalLista.innerHTML = '<ul style="list-style:none; padding:0;">' +
-          usuarios.map((u, i) => `
-            <li style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-              <b>Nombre:</b> ${u.nombre || ''} <br>
-              <b>Apellidos:</b> ${u.apellidos || ''} <br>
-              <b>ID:</b> ${u.id || ''} <br>
-              <b>Matrícula:</b> ${u.matricula || ''} <br>
-              <b>Rol:</b> ${u.rol || ''} <br>
-              <button style="margin-right:8px;" data-index="${i}" class="modificarUsuario">Modificar</button>
+        personalLista.innerHTML = usuarios.map((u, i) => `
+          <div class="personal-item">
+            <h4>${u.nombre || 'Sin nombre'} ${u.apellidos || ''}</h4>
+            <p><strong>ID:</strong> ${u.id || 'No especificado'}</p>
+            <p><strong>Matrícula:</strong> ${u.matricula || 'No especificada'}</p>
+            <p><strong>Rol:</strong> ${u.rol === 'admin' ? 'Administrador' : 'Practicante'}</p>
+            <p><strong>Edad:</strong> ${u.edad || 'No especificada'} años</p>
+            <p><strong>Sexo:</strong> ${u.sexo === 'M' ? 'Masculino' : u.sexo === 'F' ? 'Femenino' : 'No especificado'}</p>
+            ${u.mesa ? `<p><strong>Mesa de salud:</strong> ${u.mesa}</p>` : ''}
+            <div class="personal-buttons">
+              <button data-index="${i}" class="modificarUsuario">Modificar</button>
               <button data-index="${i}" class="eliminarUsuario">Eliminar</button>
-            </li>
-          `).join('') + '</ul>';
+            </div>
+          </div>
+        `).join('');
       }
       modalPersonal.style.display = 'flex';
     });
