@@ -156,6 +156,16 @@
       margin-bottom: 30px;
       text-align: center;
     }
+    
+    .form-subtitle {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #7dd3fc;
+        color: #0891b2;
+    }
 
     .welcome-message {
       text-align: center;
@@ -230,6 +240,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
+        font-size: 0.9rem; /* Letra más pequeña para que quepan más datos */
     }
 
     .history-table th, .history-table td {
@@ -344,13 +355,14 @@
             <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Fecha y Hora</th>
+                        <th>Fecha</th>
+                        <th>Paciente</th>
+                        <th>Matrícula</th>
+                        <th>Carrera</th>
+                        <th>Edad</th>
                         <th>Peso (kg)</th>
                         <th>Altura (cm)</th>
                         <th>IMC</th>
-                        <th>Presión Art.</th>
-                        <th>Glucosa (mg/dL)</th>
-                        <th>Temp. (°C)</th>
                     </tr>
                 </thead>
                 <tbody id="history-body">
@@ -360,7 +372,28 @@
 
         <div id="nuevo-paciente-section" class="form-section">
           <h2 class="content-title">Ingresar Nuevo Paciente</h2>
-            <form id="patient-form">
+            <form id="patient-form" novalidate>
+                <h3 class="form-subtitle">Datos Personales</h3>
+                <div class="form-group full-width">
+                    <label for="nombreCompleto">Nombre y Apellidos:</label>
+                    <input type="text" id="nombreCompleto" placeholder="Ej: Ana Sofía García López" required>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edad">Edad:</label>
+                        <input type="number" id="edad" placeholder="Ej: 21" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="matricula">Matrícula:</label>
+                        <input type="text" id="matricula" placeholder="Ej: 19071234" required>
+                    </div>
+                </div>
+                 <div class="form-group full-width">
+                    <label for="carrera">Carrera:</label>
+                    <input type="text" id="carrera" placeholder="Ej: Ingeniería en Sistemas Computacionales" required>
+                </div>
+
+                <h3 class="form-subtitle">Datos Médicos</h3>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="peso">Peso (kg):</label>
@@ -379,7 +412,7 @@
                         <input type="text" id="glucosa" placeholder="Ej: 99" required>
                     </div>
                 </div>
-                <div class="form-group full-width">
+                 <div class="form-group full-width">
                     <label for="temperatura">Temperatura (°C):</label>
                     <input type="text" id="temperatura" placeholder="Ej: 36.6" required>
                 </div>

@@ -21,12 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     userNameSpan.textContent = usuarioActualNombre || nombre;
   }
 
-  // Actualizar título para practicantes
-  const headerTitle = document.getElementById('headerTitle');
-  if (headerTitle && usuario === 'practicante') {
-    headerTitle.textContent = 'Medical Developer';
-  }
-
   // Lógica del menú de usuario
   const userIcon = document.getElementById('userIcon');
   const userDropdown = document.getElementById('userDropdown');
@@ -79,8 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         section.classList.remove('active');
       });
       
-      // === BUG CORREGIDO AQUÍ ===
-      // Se usan comillas invertidas (`) para crear la cadena de texto correctamente.
       const activeSection = document.getElementById(`${targetSection}-section`);
       if (activeSection) {
         activeSection.classList.add('active');
@@ -88,14 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Mostrar por defecto la sección de historial al cargar la página
   const historialBtn = document.querySelector('button[data-section="historial"]');
   if(historialBtn) {
     historialBtn.click();
   }
 
-
-  // --- INICIO DEL CÓDIGO PARA FORMULARIO Y REGISTRO DE PACIENTES ---
+  // --- CÓDIGO ACTUALIZADO PARA FORMULARIO Y REGISTRO DE PACIENTES ---
   const pesoInput = document.getElementById('peso');
   const alturaInput = document.getElementById('altura');
   const imcResultado = document.getElementById('imc-resultado');
@@ -129,7 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function validarYGuardarDatos() {
-      const datos = {
+      // 1. CAPTURAR LOS NUEVOS DATOS
+      const datosPersonales = {
+          nombreCompleto: document.getElementById('nombreCompleto').value.trim(),
+          edad: document.getElementById('edad').value.trim(),
+          matricula: document.getElementById('matricula').value.trim(),
+          carrera: document.getElementById('carrera').value.trim()
+      };
+
+      const datosMedicos = {
           peso: pesoInput.value.trim(),
           altura: alturaInput.value.trim(),
           presion: document.getElementById('presion').value.trim(),
@@ -139,21 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let errores = [];
 
-      if (!datos.peso || isNaN(datos.peso) || parseFloat(datos.peso) <= 0) {
-          errores.push('El peso debe ser un número positivo.');
-      }
-      if (!datos.altura || isNaN(datos.altura) || parseFloat(datos.altura) <= 0) {
-          errores.push('La altura debe ser un número positivo.');
-      }
-      if (!datos.glucosa || isNaN(datos.glucosa) || parseFloat(datos.glucosa) < 0) {
-          errores.push('La glucosa debe ser un número válido.');
-      }
-      if (!datos.temperatura || isNaN(datos.temperatura)) {
-          errores.push('La temperatura debe ser un valor numérico.');
-      }
-      if (datos.presion === '') {
-          errores.push('La presión arterial es requerida.');
-      }
+      // 2. VALIDAR LOS NUEVOS CAMPOS
+      if (datosPersonales.nombreCompleto === '') errores.push('El nombre y apellidos son requeridos.');
+      if (!datosPersonales.edad || isNaN(datosPersonales.edad) || parseInt(datosPersonales.edad) <= 0) errores.push('La edad debe ser un número positivo.');
+      if (datosPersonales.matricula === '') errores.push('La matrícula es requerida.');
+      if (datosPersonales.carrera === '') errores.push('La carrera es requerida.');
+
+      // Validaciones de datos médicos (existentes)
+      if (!datosMedicos.peso || isNaN(datosMedicos.peso) || parseFloat(datosMedicos.peso) <= 0) errores.push('El peso debe ser un número positivo.');
+      if (!datosMedicos.altura || isNaN(datosMedicos.altura) || parseFloat(datosMedicos.altura) <= 0) errores.push('La altura debe ser un número positivo.');
+      if (datosMedicos.presion === '') errores.push('La presión arterial es requerida.');
+
 
       if (errores.length > 0) {
           errorMessage.innerHTML = errores.join('<br>');
@@ -161,8 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
           errorMessage.style.display = 'none';
           
+          // 3. GUARDAR EL REGISTRO COMPLETO
           const registro = {
-              ...datos,
+              ...datosPersonales,
+              ...datosMedicos,
               imc: imcResultado.textContent,
               fecha: new Date().toLocaleString('es-MX')
           };
@@ -172,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
           form.reset();
           imcResultado.textContent = '---';
           
-          mostrarConfirmacion('Registro Exitoso', 'Los datos médicos se han guardado correctamente.');
+          mostrarConfirmacion('Registro Exitoso', 'Los datos del paciente se han guardado correctamente.');
       }
   }
   
@@ -192,14 +188,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function actualizarTablaHistorial(registro, esNuevo = true) {
       if(!historyBody) return;
       const fila = document.createElement('tr');
+      // 4. MOSTRAR LOS NUEVOS DATOS EN LA TABLA
       fila.innerHTML = `
           <td>${registro.fecha}</td>
+          <td>${registro.nombreCompleto}</td>
+          <td>${registro.matricula}</td>
+          <td>${registro.carrera}</td>
+          <td>${registro.edad}</td>
           <td>${registro.peso}</td>
           <td>${registro.altura}</td>
           <td>${registro.imc}</td>
-          <td>${registro.presion}</td>
-          <td>${registro.glucosa}</td>
-          <td>${registro.temperatura}</td>
       `;
       
       if (esNuevo) {
@@ -209,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
-  // Función para mostrar confirmaciones (se mantiene como la proporcionaste)
   function mostrarConfirmacion(titulo, mensaje) {
     const modal = document.createElement('div');
     modal.style.cssText = `
