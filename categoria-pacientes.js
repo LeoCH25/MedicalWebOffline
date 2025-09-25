@@ -1,5 +1,5 @@
 // categoria-pacientes.js
-// Lógica para la gestión de pacientes con agrupación por matrícula
+// Lógica para la gestión de pacientes con agrupación y formularios de seguimiento
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA DE USUARIO Y NAVEGACIÓN ---
@@ -64,6 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeSection) {
                 activeSection.classList.add('active');
             }
+            // Si se hace clic en "Ingresar nuevo paciente", reseteamos el formulario
+            if(targetSectionId === 'nuevo-paciente') {
+                resetearFormularioCompleto();
+            }
         });
     });
 
@@ -75,21 +79,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LÓGICA REESTRUCTURADA PARA EXPEDIENTES DE PACIENTES ---
     const form = document.getElementById('patient-form');
     const errorMessage = document.getElementById('error-message');
-    const historyBody = document.getElementById('history-body'); // Tabla principal
+    const historyBody = document.getElementById('history-body');
     const modal = document.getElementById('historialModal');
     const modalPatientName = document.getElementById('modalPatientName');
-    const modalHistoryBody = document.getElementById('modalHistoryBody'); // Tabla del modal
+    const modalHistoryBody = document.getElementById('modalHistoryBody');
     const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const personalDataInputs = ['nombreCompleto', 'edad', 'sexo', 'matricula', 'semestre', 'carrera', 'contacto'];
     
     cargarYMostrarPacientes();
 
-    // --- CORRECCIÓN DEL BUG DE CÁLCULO DE IMC ---
-    // Se añaden de nuevo los listeners para que el IMC se calcule en tiempo real.
     const pesoInput = document.getElementById('peso');
     const alturaInput = document.getElementById('altura');
     if (pesoInput) pesoInput.addEventListener('input', calcularYMostrarIMC);
     if (alturaInput) alturaInput.addEventListener('input', calcularYMostrarIMC);
-    // --- FIN DE LA CORRECCIÓN ---
 
     if (form) {
         form.addEventListener('submit', (event) => {
@@ -98,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Event Listeners para los botones (Delegación de eventos) ---
     if (historyBody) {
         historyBody.addEventListener('click', function (event) {
             const target = event.target;
@@ -109,6 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (target.classList.contains('view-history-btn')) {
                 const matricula = target.getAttribute('data-matricula');
                 mostrarHistorialDePaciente(matricula);
+            }
+            if (target.classList.contains('follow-up-btn')) {
+                const matricula = target.getAttribute('data-matricula');
+                prepararFormularioDeSeguimiento(matricula);
             }
         });
     }
@@ -128,6 +133,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function prepararFormularioDeSeguimiento(matricula) {
+        let pacientes = JSON.parse(localStorage.getItem('expedientesPacientes')) || {};
+        const paciente = pacientes[matricula];
+        if (!paciente) return;
+
+        personalDataInputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = paciente.datosPersonales[id] || '';
+                input.disabled = true;
+            }
+        });
+        
+        const botonNuevoPaciente = document.querySelector('button[data-section="nuevo-paciente"]');
+        if (botonNuevoPaciente) {
+            botonNuevoPaciente.click();
+        }
+    }
+
+    function resetearFormularioCompleto() {
+        if(form) form.reset();
+        personalDataInputs.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.disabled = false;
+            }
+        });
+        const imcResultado = document.getElementById('imc-resultado');
+        if (imcResultado) imcResultado.textContent = '---';
+    }
+
     function guardarRegistro(registro) {
         let pacientes = JSON.parse(localStorage.getItem('expedientesPacientes')) || {};
         const matricula = registro.matricula;
@@ -138,7 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombreCompleto: registro.nombreCompleto,
                 edad: registro.edad,
                 carrera: registro.carrera,
-                matricula: registro.matricula
+                matricula: registro.matricula,
+                sexo: registro.sexo,
+                semestre: registro.semestre,
+                contacto: registro.contacto
             };
         } else {
             pacientes[matricula] = {
@@ -146,7 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     nombreCompleto: registro.nombreCompleto,
                     edad: registro.edad,
                     carrera: registro.carrera,
-                    matricula: registro.matricula
+                    matricula: registro.matricula,
+                    sexo: registro.sexo,
+                    semestre: registro.semestre,
+                    contacto: registro.contacto
                 },
                 historial: [registro]
             };
@@ -174,8 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${registroMasReciente.altura}</td>
                 <td>${registroMasReciente.imc}</td>
                 <td>
-                    <button class="view-history-btn" data-matricula="${matricula}" style="cursor:pointer; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #007bff; background-color: #e7f3ff;">Ver Historial</button>
-                    <button class="delete-btn" data-matricula="${matricula}" style="cursor:pointer; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ffaaaa; background-color: #ffdddd; margin-top: 5px;">Borrar Paciente</button>
+                    <button class="follow-up-btn" data-matricula="${matricula}" style="cursor:pointer; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #10b981; background-color: #d1fae5; display: block; width: 100%; margin-bottom: 5px;">Añadir Seguimiento</button>
+                    <button class="view-history-btn" data-matricula="${matricula}" style="cursor:pointer; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #007bff; background-color: #e7f3ff; display: block; width: 100%; margin-bottom: 5px;">Ver Historial</button>
+                    <button class="delete-btn" data-matricula="${matricula}" style="cursor:pointer; padding: 4px 8px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #ffaaaa; background-color: #ffdddd; display: block; width: 100%;">Borrar Paciente</button>
                 </td>
             `;
             historyBody.appendChild(fila);
@@ -194,6 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const fila = document.createElement('tr');
             fila.innerHTML = `
                 <td>${registro.fecha}</td>
+                <td>${registro.sexo}</td>
+                <td>${registro.semestre}</td>
+                <td>${registro.contacto}</td>
                 <td>${registro.peso}</td>
                 <td>${registro.altura}</td>
                 <td>${registro.imc}</td>
@@ -246,10 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function validarYGuardarDatos() {
         const imcResultado = document.getElementById('imc-resultado');
         const registroCompleto = {
+            // Datos personales
             nombreCompleto: document.getElementById('nombreCompleto').value.trim(),
             edad: document.getElementById('edad').value.trim(),
+            sexo: document.getElementById('sexo').value,
             matricula: document.getElementById('matricula').value.trim(),
+            semestre: document.getElementById('semestre').value.trim(),
             carrera: document.getElementById('carrera').value.trim(),
+            contacto: document.getElementById('contacto').value.trim(),
+            // Datos médicos
             peso: document.getElementById('peso').value.trim(),
             altura: document.getElementById('altura').value.trim(),
             presion: document.getElementById('presion').value.trim(),
@@ -262,10 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let errores = [];
         if (registroCompleto.nombreCompleto === '') errores.push('El nombre y apellidos son requeridos.');
         if (!registroCompleto.edad || isNaN(registroCompleto.edad) || parseInt(registroCompleto.edad) <= 0) errores.push('La edad debe ser un número positivo.');
+        if (registroCompleto.sexo === '') errores.push('Debes seleccionar el sexo.');
         if (registroCompleto.matricula === '') errores.push('La matrícula es requerida.');
+        if (!registroCompleto.semestre || isNaN(registroCompleto.semestre) || parseInt(registroCompleto.semestre) <= 0) errores.push('El semestre debe ser un número positivo.');
         if (registroCompleto.carrera === '') errores.push('La carrera es requerida.');
+        if (registroCompleto.contacto === '') errores.push('El contacto es requerido.');
         if (!registroCompleto.peso || isNaN(registroCompleto.peso) || parseFloat(registroCompleto.peso) <= 0) errores.push('El peso debe ser un número positivo.');
-        if (!registroCompleto.altura || isNaN(registroCompleto.altura) || parseFloat(registroCompleto.altura) <= 0) errores.push('El altura debe ser un número positivo.');
+        if (!registroCompleto.altura || isNaN(registroCompleto.altura) || parseFloat(registroCompleto.altura) <= 0) errores.push('La altura debe ser un número positivo.');
         if (registroCompleto.presion === '') errores.push('La presión arterial es requerida.');
 
         if (errores.length > 0) {
@@ -275,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
             errorMessage.style.display = 'none';
             guardarRegistro(registroCompleto);
             cargarYMostrarPacientes();
-            form.reset();
-            if(imcResultado) imcResultado.textContent = '---';
+            resetearFormularioCompleto();
             mostrarConfirmacion('Registro Exitoso', 'Los datos del paciente se han guardado correctamente.');
+            if(historialBtn) historialBtn.click();
         }
     }
     
@@ -304,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.cssText = `
           display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
           background: linear-gradient(135deg, rgba(125, 211, 252, 0.9), rgba(254, 243, 199, 0.9));
-          z-index: 9999; justify-content: center; align-items: center;
+          z-index: 9999; justify-content: center; align-items-center;
         `;
         
         modal.innerHTML = `
