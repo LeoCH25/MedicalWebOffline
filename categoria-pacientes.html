@@ -209,7 +209,6 @@
     }
 
     .form-group input,
-    .form-group textarea,
     .form-group select {
       width: 100%;
       padding: 12px 16px;
@@ -222,7 +221,6 @@
     }
 
     .form-group input:focus,
-    .form-group textarea:focus,
     .form-group select:focus {
       border-color: #06b6d4;
       box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
@@ -385,13 +383,31 @@
                         <input type="number" id="edad" placeholder="Ej: 21" required>
                     </div>
                     <div class="form-group">
+                        <label for="sexo">Sexo:</label>
+                        <select id="sexo" required>
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
                         <label for="matricula">Matrícula:</label>
                         <input type="text" id="matricula" placeholder="Ej: 19071234" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="semestre">Semestre:</label>
+                        <input type="number" id="semestre" placeholder="Ej: 7" required>
                     </div>
                 </div>
                  <div class="form-group full-width">
                     <label for="carrera">Carrera:</label>
                     <input type="text" id="carrera" placeholder="Ej: Ingeniería en Sistemas Computacionales" required>
+                </div>
+                <div class="form-group full-width">
+                    <label for="contacto">Contacto (Teléfono o Email):</label>
+                    <input type="text" id="contacto" placeholder="Ej: 4421234567 o email@ejemplo.com" required>
                 </div>
 
                 <h3 class="form-subtitle">Datos Médicos</h3>
@@ -441,12 +457,15 @@
   </main>
 
   <div id="historialModal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
-    <div style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 900px; border-radius: 15px;">
+    <div style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 1000px; border-radius: 15px;">
       <h2 id="modalPatientName" style="text-align: center; color: #0891b2;">Historial de Paciente</h2>
       <table class="history-table" style="width: 100%; margin-top: 15px;">
         <thead>
           <tr>
             <th>Fecha</th>
+            <th>Sexo</th>
+            <th>Semestre</th>
+            <th>Contacto</th>
             <th>Peso (kg)</th>
             <th>Altura (cm)</th>
             <th>IMC</th>
